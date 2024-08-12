@@ -373,6 +373,14 @@ config USB_GADGET_XILINX
 	  dynamically linked module called "udc-xilinx" and force all
 	  gadget drivers to also be dynamically linked.
 
+config USB_GADGET_RKUDEV
+	tristate "Raph Kay's USB peripheral driver for rk3399"
+	depends on ( HAS_DMA && USB=y && USB_GADGET=y )
+	help
+	  This experimental USB peripheral driver runs rk3399 device as
+	  libusb or libusbk bulk device.
+	  All copyrights reserved to Raphael Kim (rageworx@gmail.com)
+
 #
 # LAST -- dummy/emulated controller
 #
