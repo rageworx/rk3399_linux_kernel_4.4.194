@@ -6943,6 +6943,7 @@ static int
 dhd_ethtool(dhd_info_t *dhd, void *uaddr)
 {
 	struct ethtool_drvinfo info;
+    int    idsize = sizeof(info.driver);
 	char drvname[sizeof(info.driver)];
 	uint32 cmd;
 #ifdef TOE
@@ -6962,8 +6963,10 @@ dhd_ethtool(dhd_info_t *dhd, void *uaddr)
 		/* Copy out any request driver name */
 		if (copy_from_user(&info, uaddr, sizeof(info)))
 			return -EFAULT;
-		strncpy(drvname, info.driver, sizeof(info.driver));
-		drvname[sizeof(info.driver)-1] = '\0';
+        // Error fix by gcc-8.x
+		//strncpy(drvname, info.driver, sizeof(info.driver));
+        strncpy( drvname, info.driver, idsize );
+		drvname[idsize-1] = '\0';
 
 		/* clear struct for return */
 		memset(&info, 0, sizeof(info));

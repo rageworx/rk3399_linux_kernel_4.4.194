@@ -54,7 +54,7 @@
 #define RKUDEV_NAME_S           "rkudev"
 #define RKUDEV_G_S              "rk_usb_gadget"
 #define RKUDEV_G_S_R            "RKUSBgadget"
-#define RKUDEV_VERSION_S        "0.5.1.31"
+#define RKUDEV_VERSION_S        "0.5.1.33"
 #define RKUDEV_IOCTL_UID        0xC8
 #define RKUDEVUID               RKUDEV_IOCTL_UID
 
@@ -67,7 +67,7 @@
 */
 static u8   opt_opr_mode    = MODE_1;
 static u8   opt_usb_speed   = USB_SPEED_UNKNOWN;
-static u8   opt_debug_lvl   = 0;
+static u8   opt_debug_lvl   = 3;
 
 #define SET_MODE \
     _IOW(RKUDEVUID, RKUDEV_CTRL_IO_BASE+1, unsigned int)
@@ -83,6 +83,9 @@ static u8   opt_debug_lvl   = 0;
 
 #define GET_MAX_BUFFLEN \
     _IOR(RKUDEVUID, RKUDEV_CTRL_IO_BASE+5, unsigned int)
+
+#define GET_DRIVER_VERSION \
+    _IOR(RKUDEVUID, RKUDEV_CTRL_IO_BASE+10, char*)
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -276,6 +279,14 @@ struct usb_endpoint_descriptor* ep_desc( struct usb_gadget *gadget,
                                          struct usb_endpoint_descriptor *hs,
                                          struct usb_endpoint_descriptor *ss )
 {
+    if ( opt_debug_lvl > 2 )
+    {
+        printk( "%s: USB endpoint desc : %s, spd = %u \n",
+                RKUDEV_NAME_S,
+                gadget->name,
+                gadget->speed );
+    }
+
     opt_usb_speed = gadget->speed;
 
     switch ( gadget->speed )
@@ -908,11 +919,21 @@ static long rkudev_ioctl( struct file* fd, unsigned int code, unsigned long arg 
         }
         break;
 
-
         case GET_MAX_BUFFLEN:
         {
             unsigned int* plen = (unsigned int*)arg;
             *plen = (unsigned int)USB_BUFSIZE;
+            ret = 0;
+        }
+        break;
+
+        case GET_DRIVER_VERSION:
+        {
+            char* pstr = (char*)arg;
+            if ( pstr != NULL )
+            {
+                snprintf( pstr, 32, "%s", RKUDEV_VERSION_S );
+            }
             ret = 0;
         }
         break;
